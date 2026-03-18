@@ -32,17 +32,31 @@ cp .env.local.example .env.local
 # 3. 启动开发服务器
 npm run dev
 
-# 4. 访问 http://localhost:3000
+# 4. 访问 http://localhost:3136
 ```
 
-## 启动命令说明
+## 命令说明
 
 | 命令 | 说明 |
 |------|------|
-| `npm run dev` | 启动开发服务器（Turbopack，绑定 0.0.0.0:3000） |
+| `npm run dev` | 启动开发服务器（Turbopack，http://0.0.0.0:3136） |
 | `npm run dev:safe` | 启动开发服务器（无 Turbopack，兼容性更好） |
-| `npm run build` | 构建生产版本 |
+| `npm run build` | 构建 Next 生产版本 |
 | `npm run start` | 启动生产服务器 |
+| `npm run cli -- "你的问题"` | **CLI**：终端调用天气 Agent（自动读取 `.env.local` 的 `GROQ_API_KEY`，首次会先执行 build:cli） |
+| `npm run build:cli` | 构建 CLI 单文件到 `dist/cli.mjs` |
+| `npm run lint` | 运行 ESLint |
+
+### CLI 使用示例
+
+```bash
+# 确保已配置 .env.local 中的 GROQ_API_KEY
+npm run cli -- "杭州天气怎么样"
+npm run cli -- "北京明天天气"
+
+# 已构建过可直接运行（需在项目根目录）
+node dist/cli.mjs "杭州天气怎么样"
+```
 
 ## 故障排查
 
@@ -50,10 +64,10 @@ npm run dev
 
 1. **检查端口占用**：
 ```bash
-# 查看 3000 端口是否被占用
-fuser 3000/tcp
+# 查看 3136 端口是否被占用
+fuser 3136/tcp
 # 杀掉占用进程
-fuser -k 3000/tcp
+fuser -k 3136/tcp
 ```
 
 2. **尝试安全模式启动**（禁用 Turbopack）：
@@ -63,7 +77,7 @@ npm run dev:safe
 
 3. **检查健康端点**：
 ```bash
-curl http://localhost:3000/api/health
+curl http://localhost:3136/api/health
 ```
 
 4. **清除缓存重启**：
@@ -82,24 +96,31 @@ GROQ_API_KEY=gsk_your-key-here
 
 ### 依赖安装失败
 
+若出现 peer dependency 冲突，可使用：
+
 ```bash
 rm -rf node_modules package-lock.json
-npm install
+npm install --legacy-peer-deps
 ```
 
 ## 项目结构
 
 ```
 /app
-  /page.tsx                # 对话页面
-  /admin/page.tsx          # Agent 管理面板
-  /api/chat/route.ts       # 聊天接口（SSE 流式）
-  /api/agent/route.ts      # Agent 信息接口
-  /api/health/route.ts     # 健康检查端点
+  page.tsx                 # 对话页面
+  admin/page.tsx           # Agent 管理面板
+  api/chat/route.ts        # 聊天接口（SSE 流式）
+  api/agent/route.ts       # Agent 信息接口
+  api/health/route.ts      # 健康检查端点
 
 /lib
-  agent.ts                 # pi-mono Agent 封装
-  skills/weather.ts        # Weather Skill 实现
+  agent.ts                 # pi-mono Agent 封装（Web + CLI 共用）
+  skills/weather.ts       # Weather Skill 实现
+
+/scripts
+  cli.ts                   # CLI 入口（经 build:cli 打包为 dist/cli.mjs）
+
+dist/                      # CLI 构建产物（已加入 .gitignore）
 ```
 
 ## API 端点
