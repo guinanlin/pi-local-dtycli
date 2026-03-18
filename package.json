@@ -1,0 +1,32 @@
+{
+  "name": "pi-mono-dty",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@mariozechner/pi-agent-core": "^0.60.0",
+    "@mariozechner/pi-ai": "^0.60.0",
+    "@tailwindcss/postcss": "^4.2.2",
+    "@types/node": "^25.5.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.0",
+    "next": "^16.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tailwindcss": "^4.2.2",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1"
+  }
+}
