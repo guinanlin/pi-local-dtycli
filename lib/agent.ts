@@ -1,12 +1,31 @@
 import { Agent } from "@mariozechner/pi-agent-core";
 import { getModel } from "@mariozechner/pi-ai";
+import type { KnownProvider } from "@mariozechner/pi-ai";
 import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
+import type { ThinkingLevel } from "@mariozechner/pi-agent-core";
 import type { Message } from "@mariozechner/pi-ai";
 import { weatherTool } from "./skills/weather";
 
 const MODEL_PROVIDER = "groq" as const;
 const MODEL_ID = "llama-3.3-70b-versatile" as const;
 const API_KEY_ENV = "GROQ_API_KEY";
+
+/** 当前支持的模型列表，每项为 "provider\tmodel"；与 --list-models 输出一致 */
+const SUPPORTED_MODELS: readonly [KnownProvider, string][] = [
+  ["groq", "llama-3.3-70b-versatile"],
+];
+
+/** 返回 --list-models 应输出的行（每行 provider\tmodel） */
+export function listModels(): string[] {
+  return SUPPORTED_MODELS.map(([p, m]) => `${p}\t${m}`);
+}
+
+/** 校验 (provider, model) 是否在支持列表中 */
+export function isSupportedModel(provider: string, model: string): boolean {
+  return SUPPORTED_MODELS.some(
+    ([p, m]) => p === provider && m === model
+  );
+}
 
 const SYSTEM_PROMPT = `你是一个智能天气助手。你的主要任务是帮助用户查询城市天气信息。
 
@@ -32,22 +51,52 @@ export interface ChatResponse {
   events: AgentEvent[];
 }
 
+export interface ChatOptions {
+  appendSystemPrompt?: string;
+  provider?: string;
+  model?: string;
+  thinkingLevel?: ThinkingLevel;
+  onEvent?: (event: AgentEvent) => void;
+}
+
 export async function chat(
   userMessage: string,
-  onEvent?: (event: AgentEvent) => void
+  optionsOrOnEvent?: ChatOptions | ((event: AgentEvent) => void)
 ): Promise<ChatResponse> {
+  const options: ChatOptions =
+    typeof optionsOrOnEvent === "function"
+      ? { onEvent: optionsOrOnEvent }
+      : optionsOrOnEvent ?? {};
+  const onEvent = options.onEvent;
+
   const apiKey = process.env[API_KEY_ENV];
   if (!apiKey) {
     throw new Error(`${API_KEY_ENV} environment variable is not set`);
   }
 
-  const model = getModel(MODEL_PROVIDER, MODEL_ID);
+  const provider = options.provider ?? MODEL_PROVIDER;
+  const modelId = options.model ?? MODEL_ID;
+  if (options.provider != null || options.model != null) {
+    if (!isSupportedModel(provider, modelId)) {
+      throw new Error(
+        `不支持的模型: ${provider}/${modelId}，请使用 --list-models 查看支持列表`
+      );
+    }
+  }
+
+  const model = getModel(
+    provider as KnownProvider,
+    modelId as Parameters<typeof getModel>[1]
+  );
+  const systemPrompt =
+    SYSTEM_PROMPT + (options.appendSystemPrompt ? "\n\n" + options.appendSystemPrompt : "");
+  const thinkingLevel = options.thinkingLevel ?? "off";
 
   const agent = new Agent({
     initialState: {
-      systemPrompt: SYSTEM_PROMPT,
+      systemPrompt,
       model,
-      thinkingLevel: "off",
+      thinkingLevel,
       tools: [weatherTool],
       messages: [],
     },

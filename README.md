@@ -58,6 +58,33 @@ npm run cli -- "北京明天天气"
 node dist/cli.mjs "杭州天气怎么样"
 ```
 
+## 作为 Paperclip pi_local 使用
+
+本 CLI 符合 [Paperclip](https://github.com/paperclipai/paperclip) 的 **pi_local 适配器契约**，可作为「Pi (local)」Agent 的命令使用：Paperclip 启动进程并传入 `--mode rpc` 等参数、通过 stdin 写入一行 JSON 提示，本进程执行单次 Agent 推理后将结果写入 stdout 并退出。对接标准见 Paperclip 文档：集成建议与改造清单、**model 必填要求**。
+
+### 在 Paperclip 中配置
+
+- **adapterConfig.command**（必填）：可执行命令，需指向构建产物。例如：
+  - `node /path/to/pi-local-dtycli/dist/cli.mjs`
+  - 或使用绝对路径，确保 Paperclip 所在环境能访问该路径。
+- **adapterConfig.model**（必填，Paperclip 强制）：须为 **provider/model** 格式，且须出自本 CLI 的 `--list-models` 输出；**必须在 Configuration 中选择并保存**后再发起 Run，否则 Run 会报错并中止（`Pi requires adapterConfig.model in provider/model format`）。当前支持：
+  - `groq/llama-3.3-70b-versatile`
+- **adapterConfig.cwd**（可选）：工作目录；本 CLI 在 RPC 模式下会基于 **当前工作目录** 加载 `.env.local` 及解析相对路径，可在此配置项目或 workspace 根目录。
+- **Instructions**：由 Paperclip 侧配置 `instructionsFilePath` 等，通过 `--append-system-prompt` 注入；本 CLI 会将其与默认 system prompt 合并后传给 LLM。
+
+当前 CLI 仅支持 **get_weather** 工具；若需 bash 等能力，可依赖 `--append-system-prompt` 注入用法说明，或后续扩展工具集。
+
+### 自测命令
+
+```bash
+# 模型列表（退出码 0）
+node dist/cli.mjs --list-models
+
+# RPC 单次 Run：stdin 一行 JSON，stdout 为最终回复
+echo '{"type":"prompt","message":"杭州天气怎么样"}' | node dist/cli.mjs --mode rpc
+# 预期：stdout 输出天气回复，退出码 0
+```
+
 ## 故障排查
 
 ### "Could not connect" / 无法访问
