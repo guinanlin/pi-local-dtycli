@@ -1,0 +1,27 @@
+{
+  "name": "Pi Local DTY CLI Agent",
+  "adapterType": "pi_local",
+  "adapterConfig": {
+    "command": "pi",
+    "model": "<provider>/<model-from-pi-list-models>",
+    "cwd": "/workspace",
+    "instructionsFilePath": "/workspace/instructions/pi-local-dty-cli.instructions.md",
+    "bootstrapPromptTemplate": "You are Pi Local DTY CLI agent. Prefer frappecli for Frappe/ERPNext tasks.",
+    "thinking": {
+      "enabled": false
+    },
+    "extraArgs": [
+      "--tools",
+      "bash"
+    ],
+    "env": {
+      "PAPERCLIP_API_URL": "${PAPERCLIP_API_URL}",
+      "PAPERCLIP_API_KEY": "${PAPERCLIP_API_KEY}",
+      "OPENAI_BASE_URL": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+      "OPENAI_API_KEY": "${OPENAI_API_KEY}"
+    }
+  },
+  "heartbeat": {
+    "enabled": true
+  }
+}
