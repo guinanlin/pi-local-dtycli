@@ -5,7 +5,7 @@ export async function GET() {
     status: "ok",
     timestamp: new Date().toISOString(),
     env: {
-      hasOpenAIKey: !!process.env.OPENAI_API_KEY,
+      hasGroqKey: !!process.env.GROQ_API_KEY,
       nodeVersion: process.version,
     },
   });

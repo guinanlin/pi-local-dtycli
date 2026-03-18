@@ -10,14 +10,14 @@
 
 - **前端**: Next.js 16 + React 19 + Tailwind CSS 4
 - **Agent 运行时**: pi-mono (`@mariozechner/pi-agent-core` + `@mariozechner/pi-ai`)
-- **LLM**: OpenAI GPT-4.1-mini
+- **LLM**: Groq Llama 3.3 70B Versatile
 - **天气数据**: [Open-Meteo API](https://open-meteo.com/)
 
 ## 环境要求
 
 - **Node.js** >= 18.0.0
 - **npm** >= 8
-- **OpenAI API Key** (必须)
+- **Groq API Key** (必须，从 https://console.groq.com/keys 获取)
 
 ## 快速开始
 
@@ -27,7 +27,7 @@ npm install
 
 # 2. 配置环境变量
 cp .env.local.example .env.local
-# 编辑 .env.local，填入你的 OPENAI_API_KEY
+# 编辑 .env.local，填入你的 GROQ_API_KEY
 
 # 3. 启动开发服务器
 npm run dev
@@ -77,7 +77,7 @@ npm run dev
 页面顶部会显示黄色警告，按提示在 `.env.local` 中配置即可：
 
 ```
-OPENAI_API_KEY=sk-your-key-here
+GROQ_API_KEY=gsk_your-key-here
 ```
 
 ### 依赖安装失败

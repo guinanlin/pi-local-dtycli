@@ -169,10 +169,10 @@ export default function ChatPage() {
       {/* API Key Warning */}
       {apiReady === false && (
         <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm">
-          <p className="font-medium">⚠️ 未配置 OPENAI_API_KEY</p>
+          <p className="font-medium">⚠️ 未配置 GROQ_API_KEY</p>
           <p className="mt-1 text-xs opacity-80">
             请在项目根目录创建 <code className="bg-amber-100 dark:bg-amber-800/40 px-1 rounded">.env.local</code> 文件并添加：
-            <code className="block mt-1 bg-amber-100 dark:bg-amber-800/40 px-2 py-1 rounded">OPENAI_API_KEY=sk-your-key-here</code>
+            <code className="block mt-1 bg-amber-100 dark:bg-amber-800/40 px-2 py-1 rounded">GROQ_API_KEY=gsk_your-key-here</code>
           </p>
         </div>
       )}
@@ -263,7 +263,7 @@ export default function ChatPage() {
           </button>
         </div>
         <p className="text-xs text-[var(--muted)] mt-2 text-center">
-          由 pi-mono + OpenAI 驱动 · 数据来源 Open-Meteo
+          由 pi-mono + Groq (Llama 3.3) 驱动 · 数据来源 Open-Meteo
         </p>
       </div>
     </div>

@@ -9,6 +9,6 @@ export async function GET() {
   return NextResponse.json({
     ...info,
     supportedCities: cities,
-    status: process.env.OPENAI_API_KEY ? "ready" : "missing_api_key",
+    status: process.env.GROQ_API_KEY ? "ready" : "missing_api_key",
   });
 }

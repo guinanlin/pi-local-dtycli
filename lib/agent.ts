@@ -4,6 +4,10 @@ import type { AgentEvent, AgentMessage } from "@mariozechner/pi-agent-core";
 import type { Message } from "@mariozechner/pi-ai";
 import { weatherTool } from "./skills/weather";
 
+const MODEL_PROVIDER = "groq" as const;
+const MODEL_ID = "llama-3.3-70b-versatile" as const;
+const API_KEY_ENV = "GROQ_API_KEY";
+
 const SYSTEM_PROMPT = `你是一个智能天气助手。你的主要任务是帮助用户查询城市天气信息。
 
 你拥有以下能力：
@@ -32,12 +36,12 @@ export async function chat(
   userMessage: string,
   onEvent?: (event: AgentEvent) => void
 ): Promise<ChatResponse> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env[API_KEY_ENV];
   if (!apiKey) {
-    throw new Error("OPENAI_API_KEY environment variable is not set");
+    throw new Error(`${API_KEY_ENV} environment variable is not set`);
   }
 
-  const model = getModel("openai", "gpt-4.1-mini");
+  const model = getModel(MODEL_PROVIDER, MODEL_ID);
 
   const agent = new Agent({
     initialState: {
@@ -65,7 +69,7 @@ export async function chat(
     unsubscribe();
     const errMsg = err instanceof Error ? err.message : String(err);
     if (errMsg.includes("401") || errMsg.includes("Unauthorized")) {
-      throw new Error("OpenAI API Key 无效或已过期，请检查配置", { cause: err });
+      throw new Error("Groq API Key 无效或已过期，请检查配置", { cause: err });
     }
     if (errMsg.includes("429") || errMsg.includes("rate limit")) {
       throw new Error("API 请求频率超限，请稍后重试", { cause: err });
@@ -103,8 +107,8 @@ export function getAgentInfo() {
   return {
     name: "pi-mono-dty",
     description: "基于 pi-mono 的极简天气查询 Agent",
-    model: "gpt-4.1-mini",
-    provider: "openai",
+    model: MODEL_ID,
+    provider: MODEL_PROVIDER,
     systemPrompt: SYSTEM_PROMPT,
     skills: [
       {

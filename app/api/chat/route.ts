@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
         {
-          error: "未配置 OPENAI_API_KEY。请在 .env.local 文件中设置。",
-          hint: "cp .env.local.example .env.local && 编辑填入你的 API Key",
+          error: "未配置 GROQ_API_KEY。请在 .env.local 文件中设置。",
+          hint: "cp .env.local.example .env.local && 编辑填入你的 Groq API Key",
         },
         { status: 503 }
       );
