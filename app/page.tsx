@@ -15,6 +15,7 @@ export default function ChatPage() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [apiReady, setApiReady] = useState<boolean | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -24,6 +25,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     inputRef.current?.focus();
+    fetch("/api/agent")
+      .then((r) => r.json())
+      .then((data) => setApiReady(data.status === "ready"))
+      .catch(() => setApiReady(false));
   }, []);
 
   const sendMessage = async () => {
@@ -49,7 +54,10 @@ export default function ChatPage() {
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`);
+        const errorBody = await res.json().catch(() => null);
+        throw new Error(
+          errorBody?.error || errorBody?.hint || `HTTP ${res.status}`
+        );
       }
 
       const reader = res.body?.getReader();
@@ -157,6 +165,17 @@ export default function ChatPage() {
           管理面板
         </Link>
       </header>
+
+      {/* API Key Warning */}
+      {apiReady === false && (
+        <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-200 text-sm">
+          <p className="font-medium">⚠️ 未配置 OPENAI_API_KEY</p>
+          <p className="mt-1 text-xs opacity-80">
+            请在项目根目录创建 <code className="bg-amber-100 dark:bg-amber-800/40 px-1 rounded">.env.local</code> 文件并添加：
+            <code className="block mt-1 bg-amber-100 dark:bg-amber-800/40 px-2 py-1 rounded">OPENAI_API_KEY=sk-your-key-here</code>
+          </p>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">

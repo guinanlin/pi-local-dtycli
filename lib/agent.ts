@@ -61,6 +61,16 @@ export async function chat(
   try {
     await agent.prompt(userMessage);
     await agent.waitForIdle();
+  } catch (err) {
+    unsubscribe();
+    const errMsg = err instanceof Error ? err.message : String(err);
+    if (errMsg.includes("401") || errMsg.includes("Unauthorized")) {
+      throw new Error("OpenAI API Key 无效或已过期，请检查配置", { cause: err });
+    }
+    if (errMsg.includes("429") || errMsg.includes("rate limit")) {
+      throw new Error("API 请求频率超限，请稍后重试", { cause: err });
+    }
+    throw new Error(`Agent 处理失败: ${errMsg}`, { cause: err });
   } finally {
     unsubscribe();
   }
@@ -76,6 +86,14 @@ export async function chat(
       .filter((c): c is { type: "text"; text: string } => c.type === "text")
       .map((c) => c.text)
       .join("");
+  }
+
+  if (!text) {
+    const errorMsg = agent.state.error;
+    if (errorMsg) {
+      throw new Error(`Agent 返回错误: ${errorMsg}`);
+    }
+    text = "抱歉，我没有生成有效的回复，请重试。";
   }
 
   return { text, events };
